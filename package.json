@@ -1,0 +1,370 @@
+{
+  "name": "sarif-viewer",
+  "displayName": "SARIF Viewer",
+  "description": "Browse SARIF static analysis results in a tree view and jump straight to the offending lines.",
+  "version": "0.1.0",
+  "license": "MIT",
+  "publisher": "local",
+  "private": true,
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Linters",
+    "Testing",
+    "Other"
+  ],
+  "keywords": [
+    "sarif",
+    "static analysis",
+    "codeql",
+    "eslint",
+    "clang-tidy"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "sarifViewer",
+          "title": "SARIF",
+          "icon": "media/sarif.svg"
+        }
+      ]
+    },
+    "views": {
+      "sarifViewer": [
+        {
+          "id": "sarifViewer.results",
+          "name": "Analysis Results",
+          "contextualTitle": "SARIF",
+          "icon": "media/sarif.svg"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "sarifViewer.results",
+        "contents": "No SARIF log is loaded.\n[Open SARIF Log...](command:sarifViewer.openLog)\nOr scan the workspace for `.sarif` files.\n[Scan Workspace](command:sarifViewer.scanWorkspace)",
+        "when": "!sarifViewer.hasLogs"
+      },
+      {
+        "view": "sarifViewer.results",
+        "contents": "$(check) The log reports no issues.",
+        "when": "sarifViewer.hasLogs && sarifViewer.isEmpty && !sarifViewer.hasResults"
+      },
+      {
+        "view": "sarifViewer.results",
+        "contents": "No result matches the active filter.\n[Clear Filters](command:sarifViewer.clearFilters)",
+        "when": "sarifViewer.hasLogs && sarifViewer.isEmpty && sarifViewer.hasResults"
+      }
+    ],
+    "commands": [
+      {
+        "command": "sarifViewer.openLog",
+        "title": "Open SARIF Log...",
+        "category": "SARIF",
+        "icon": "$(add)"
+      },
+      {
+        "command": "sarifViewer.scanWorkspace",
+        "title": "Scan Workspace for SARIF Logs",
+        "category": "SARIF",
+        "icon": "$(search)"
+      },
+      {
+        "command": "sarifViewer.reloadLogs",
+        "title": "Reload SARIF Logs",
+        "category": "SARIF",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "sarifViewer.closeLog",
+        "title": "Close Log",
+        "category": "SARIF",
+        "icon": "$(close)"
+      },
+      {
+        "command": "sarifViewer.closeAllLogs",
+        "title": "Close All Logs",
+        "category": "SARIF",
+        "icon": "$(clear-all)"
+      },
+      {
+        "command": "sarifViewer.setGrouping",
+        "title": "Group Results By...",
+        "category": "SARIF",
+        "icon": "$(list-tree)"
+      },
+      {
+        "command": "sarifViewer.setLevelFilter",
+        "title": "Filter by Severity...",
+        "category": "SARIF",
+        "icon": "$(filter)"
+      },
+      {
+        "command": "sarifViewer.setTextFilter",
+        "title": "Filter Results by Text...",
+        "category": "SARIF",
+        "icon": "$(search-fuzzy)"
+      },
+      {
+        "command": "sarifViewer.clearFilters",
+        "title": "Clear Filters",
+        "category": "SARIF",
+        "icon": "$(clear-all)"
+      },
+      {
+        "command": "sarifViewer.openResult",
+        "title": "Open Result Location",
+        "category": "SARIF"
+      },
+      {
+        "command": "sarifViewer.clearHighlights",
+        "title": "Clear Highlights",
+        "category": "SARIF"
+      },
+      {
+        "command": "sarifViewer.copyMessage",
+        "title": "Copy Message",
+        "category": "SARIF"
+      },
+      {
+        "command": "sarifViewer.openHelpUri",
+        "title": "Open Rule Documentation",
+        "category": "SARIF",
+        "icon": "$(link-external)"
+      },
+      {
+        "command": "sarifViewer.revealLogFile",
+        "title": "Open Log File in Editor",
+        "category": "SARIF"
+      }
+    ],
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "sarifViewer.openResult",
+          "when": "false"
+        },
+        {
+          "command": "sarifViewer.copyMessage",
+          "when": "false"
+        },
+        {
+          "command": "sarifViewer.openHelpUri",
+          "when": "false"
+        },
+        {
+          "command": "sarifViewer.closeLog",
+          "when": "false"
+        },
+        {
+          "command": "sarifViewer.revealLogFile",
+          "when": "false"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "sarifViewer.openLog",
+          "when": "view == sarifViewer.results",
+          "group": "navigation@1"
+        },
+        {
+          "command": "sarifViewer.reloadLogs",
+          "when": "view == sarifViewer.results && sarifViewer.hasLogs",
+          "group": "navigation@2"
+        },
+        {
+          "command": "sarifViewer.setGrouping",
+          "when": "view == sarifViewer.results && sarifViewer.hasLogs",
+          "group": "navigation@3"
+        },
+        {
+          "command": "sarifViewer.setLevelFilter",
+          "when": "view == sarifViewer.results && sarifViewer.hasLogs",
+          "group": "navigation@4"
+        },
+        {
+          "command": "sarifViewer.setTextFilter",
+          "when": "view == sarifViewer.results && sarifViewer.hasLogs",
+          "group": "navigation@5"
+        },
+        {
+          "command": "sarifViewer.scanWorkspace",
+          "when": "view == sarifViewer.results",
+          "group": "1_logs@1"
+        },
+        {
+          "command": "sarifViewer.clearFilters",
+          "when": "view == sarifViewer.results",
+          "group": "2_filters@1"
+        },
+        {
+          "command": "sarifViewer.closeAllLogs",
+          "when": "view == sarifViewer.results && sarifViewer.hasLogs",
+          "group": "3_close@1"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "sarifViewer.revealLogFile",
+          "when": "view == sarifViewer.results && viewItem == sarifLog",
+          "group": "inline@1"
+        },
+        {
+          "command": "sarifViewer.closeLog",
+          "when": "view == sarifViewer.results && viewItem == sarifLog",
+          "group": "inline@2"
+        },
+        {
+          "command": "sarifViewer.openHelpUri",
+          "when": "view == sarifViewer.results && viewItem =~ /^sarifResult.*:help$/",
+          "group": "inline@1"
+        },
+        {
+          "command": "sarifViewer.copyMessage",
+          "when": "view == sarifViewer.results && viewItem =~ /^sarifResult/",
+          "group": "9_copy@1"
+        },
+        {
+          "command": "sarifViewer.openHelpUri",
+          "when": "view == sarifViewer.results && viewItem =~ /^sarifResult.*:help$/",
+          "group": "1_open@1"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "sarifViewer.openLog",
+          "when": "resourceExtname == .sarif",
+          "group": "navigation@30"
+        }
+      ],
+      "editor/title/context": [
+        {
+          "command": "sarifViewer.openLog",
+          "when": "resourceExtname == .sarif",
+          "group": "navigation@30"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "SARIF Viewer",
+      "properties": {
+        "sarifViewer.restoreLogsOnStartup": {
+          "type": "boolean",
+          "default": true,
+          "description": "Reopen the SARIF logs that were loaded in this workspace when the window is reloaded."
+        },
+        "sarifViewer.autoLoadWorkspaceLogs": {
+          "type": "boolean",
+          "default": false,
+          "description": "Automatically load SARIF logs found in the workspace when the extension starts. When off, open a log yourself or run \"SARIF: Scan Workspace for SARIF Logs\"."
+        },
+        "sarifViewer.workspaceLogGlob": {
+          "type": "string",
+          "default": "**/*.{sarif,sarif.json}",
+          "description": "Glob pattern used to discover SARIF logs in the workspace."
+        },
+        "sarifViewer.grouping": {
+          "type": "string",
+          "enum": [
+            "file",
+            "rule",
+            "severity",
+            "none"
+          ],
+          "enumDescriptions": [
+            "Group results by source file.",
+            "Group results by rule.",
+            "Group results by severity level.",
+            "Show a flat list of results."
+          ],
+          "default": "file",
+          "description": "How results are grouped in the tree."
+        },
+        "sarifViewer.levels": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "error",
+              "warning",
+              "note",
+              "none"
+            ]
+          },
+          "uniqueItems": true,
+          "default": [
+            "error",
+            "warning",
+            "note",
+            "none"
+          ],
+          "description": "Severity levels shown in the tree."
+        },
+        "sarifViewer.loadOpenedLogs": {
+          "type": "boolean",
+          "default": true,
+          "description": "Load a SARIF log into the tree when you open it in an editor. The editor is left alone, so other SARIF extensions and the plain text editor keep working as they are."
+        },
+        "sarifViewer.expandGroups": {
+          "type": "boolean",
+          "default": true,
+          "description": "Expand the group rows (files, rules or severities) when the tree is built. Turn this off for very large logs."
+        },
+        "sarifViewer.showSuppressed": {
+          "type": "boolean",
+          "default": false,
+          "description": "Show results that the tool reported as suppressed."
+        },
+        "sarifViewer.publishDiagnostics": {
+          "type": "boolean",
+          "default": false,
+          "description": "Also publish loaded results to the Problems panel and show squiggles in the editor."
+        },
+        "sarifViewer.highlightWholeLine": {
+          "type": "boolean",
+          "default": false,
+          "description": "Highlight the entire line even when the result carries precise column information."
+        },
+        "sarifViewer.highlightRelatedLocations": {
+          "type": "boolean",
+          "default": true,
+          "description": "Also highlight related locations and code flow steps of the selected result."
+        },
+        "sarifViewer.keepFocusInTree": {
+          "type": "boolean",
+          "default": true,
+          "description": "Keep keyboard focus in the tree when a result is selected, so the list can be browsed with the arrow keys."
+        },
+        "sarifViewer.watchLogs": {
+          "type": "boolean",
+          "default": true,
+          "description": "Reload a log automatically when its file changes on disk."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run package",
+    "compile": "node esbuild.js",
+    "watch": "node esbuild.js --watch",
+    "package": "node esbuild.js --production",
+    "typecheck": "tsc --noEmit",
+    "verify": "node scripts/verify.mjs",
+    "verify:package": "node scripts/verifyPackage.mjs",
+    "test": "npm run typecheck && npm run verify",
+    "vsix": "npm test && vsce package --allow-missing-repository --skip-license --no-rewrite-relative-links && npm run verify:package"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "@types/vscode": "^1.85.0",
+    "@vscode/vsce": "^3.9.2",
+    "esbuild": "^0.28.1",
+    "typescript": "^5.5.0"
+  }
+}
