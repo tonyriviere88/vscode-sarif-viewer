@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.2.0
 
 - Dropped the `jsonValidation` contribution. It made the JSON language service validate every
   `.sarif` opened as text against a remote schema, putting squiggles in the editor and entries in the

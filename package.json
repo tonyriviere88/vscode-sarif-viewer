@@ -2,7 +2,7 @@
   "name": "sarif-viewer",
   "displayName": "SARIF Viewer",
   "description": "Browse SARIF static analysis results in a tree view and jump straight to the offending lines.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "license": "MIT",
   "publisher": "local",
   "private": true,
