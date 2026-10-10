@@ -4,6 +4,10 @@ A VS Code extension that browses [SARIF](https://sarifweb.azurewebsites.net/) st
 logs in a tree view on the activity bar, and highlights the offending lines in the editor when
 you click a result.
 
+<p align="center">
+  <img src="media/overview.png" alt="The Analysis Results tree next to an editor with the selected result highlighted">
+</p>
+
 ## Features
 
 - **Its own activity bar tab.** A dedicated container (the magnifier-over-document icon) holds

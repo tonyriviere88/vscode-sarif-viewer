@@ -8,7 +8,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync, writeFileSync, mkdirSync, rmSync, existsSync } from 'node:fs';
 import { createRequire } from 'node:module';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import * as path from 'node:path';
 import * as esbuild from 'esbuild';
 
@@ -1088,7 +1088,7 @@ console.log('absolute paths from a build agent (MSVC-style)');
 await checkAsync('an absolute file: uri resolves and shows a workspace-relative folder', async () => {
   await __test.execute('sarifViewer.closeAllLogs');
   const agentLogPath = path.join(outDir, 'agent.sarif');
-  const absoluteUri = `file:///${root.replace(/\\/g, '/')}/src/store.ts`;
+  const absoluteUri = pathToFileURL(path.join(root, 'src', 'store.ts')).href;
   writeFileSync(
     agentLogPath,
     JSON.stringify({

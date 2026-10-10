@@ -6,6 +6,11 @@
 
 const fs = require('node:fs');
 
+// Like the real API, `\` is a separator and fsPath uses backslashes only on
+// Windows; elsewhere a path is already a POSIX path.
+const isWindows = process.platform === 'win32';
+const sep = isWindows ? '\\' : '/';
+
 class Position {
   constructor(line, character) {
     this.line = line;
@@ -47,7 +52,7 @@ class Uri {
     this.fragment = fragment;
   }
   static file(filePath) {
-    const normalized = filePath.replace(/\\/g, '/');
+    const normalized = isWindows ? filePath.replace(/\\/g, '/') : filePath;
     return new Uri('file', normalized.startsWith('/') ? normalized : `/${normalized}`);
   }
   static parse(value) {
@@ -68,6 +73,9 @@ class Uri {
     return new Uri(base.scheme, [base.path.replace(/\/+$/, ''), ...segments].join('/'));
   }
   get fsPath() {
+    if (!isWindows) {
+      return this.path;
+    }
     return this.path.replace(/^\/(?=[a-zA-Z]:)/, '').replace(/\//g, '\\');
   }
   with(change) {
@@ -255,7 +263,7 @@ const workspace = {
     const fsPath = typeof uri === 'string' ? uri : uri.fsPath;
     for (const folder of workspace.workspaceFolders ?? []) {
       const base = folder.uri.fsPath;
-      if (fsPath.toLowerCase().startsWith(`${base.toLowerCase()}\\`)) {
+      if (fsPath.toLowerCase().startsWith(`${base.toLowerCase()}${sep}`)) {
         const relative = fsPath.slice(base.length + 1);
         return includeWorkspaceFolder ? `${folder.name}/${relative}` : relative;
       }
